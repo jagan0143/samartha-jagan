@@ -18,8 +18,12 @@ export class Application {
     @Prop({ type: Date})
     applicationDate: Date;
 
-    @Prop({ type: String})
-    applicationStatus: string;
+    @Prop(raw({
+        profileStatus: { type: String},
+        kycStatus: { type: String},
+        loanStatus: { type: String}
+    }))
+    applicationStatus: Record<string, any>;
 
     // @Prop({
     //     type: mongoose.Schema.Types.ObjectId,

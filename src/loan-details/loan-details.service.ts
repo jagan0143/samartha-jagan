@@ -16,21 +16,19 @@ export class LoanDetailsService {
 
     async newLoanDetails(agriEnterprise: AgriEnterpriseDocument, financialInfoPage1: FinancialInfoPage1Dto): Promise<LoanRequirementDocument> {
         return new Promise(async (resolve, rejects) => {
-            try {
                 const newLoanData = {
                     aeId: agriEnterprise._id,
                     type: agriEnterprise.type,
                     userId: agriEnterprise.userId,
                     financialInformation: {
-                        financialInfoPage1,
-                        // operationalVintage: financialInfoPage1.operationalVintage,
-                        // operationalVintageDurationType: financialInfoPage1.operationalVintageDurationType,
-                        // annualTurnover: financialInfoPage1.annualTurnover,
-                        // creditorAging: financialInfoPage1.creditorAging,
-                        // debtorAging: financialInfoPage1.debtorAging,
-                        // auditedFinancialFiles: financialInfoPage1.auditedFinancialFiles,
-                        // provisionalFinancialFiles: financialInfoPage1.provisionalFinancialFiles,
-                        // projectedFinancialFiles: financialInfoPage1.projectedFinancialFiles,
+                        operationalVintage: financialInfoPage1.operationalVintage,
+                        operationalVintageDurationType: financialInfoPage1.operationalVintageDurationType,
+                        annualTurnover: financialInfoPage1.annualTurnover,
+                        creditorAging: financialInfoPage1.creditorAging,
+                        debtorAging: financialInfoPage1.debtorAging,
+                        auditedFinancialFiles: financialInfoPage1.auditedFinancialFiles,
+                        provisionalFinancialFiles: financialInfoPage1.provisionalFinancialFiles,
+                        projectedFinancialFiles: financialInfoPage1.projectedFinancialFiles,
                         itrFiles: [null],
                         gst3bFiles: [null],
                         salesRegisterFiles: [null],
@@ -50,52 +48,70 @@ export class LoanDetailsService {
                     }
                 }
                 const newLoan = await new this.loanRequirementModel(newLoanData).save();
-                resolve(newLoan);
-            } catch (err) {
-                rejects(err);
-            }
+                if(newLoan) resolve(newLoan);
+                else rejects("Loan not created properly!");
         })
     }
 
     async updateFinancialInfoPage1(loanRequirementId: string, financialInfoPage1: FinancialInfoPage1Dto) {
-        const updatedLoan = await this.loanRequirementModel.findById(loanRequirementId);
-        updatedLoan.financialInformation.operationalVintage = financialInfoPage1.operationalVintage;
-        updatedLoan.financialInformation.operationalVintageDurationType = financialInfoPage1.operationalVintageDurationType;
-        updatedLoan.financialInformation.annualTurnover = financialInfoPage1.annualTurnover;
-        updatedLoan.financialInformation.creditorAging = financialInfoPage1.creditorAging;
-        updatedLoan.financialInformation.debtorAging = financialInfoPage1.debtorAging;
-        updatedLoan.financialInformation.auditedFinancialFiles = financialInfoPage1.auditedFinancialFiles;
-        updatedLoan.financialInformation.provisionalFinancialFiles = financialInfoPage1.provisionalFinancialFiles;
-        updatedLoan.financialInformation.projectedFinancialFiles = financialInfoPage1.projectedFinancialFiles;
-        updatedLoan.loanStatus.financialInformation.page1 = "completed";
-        await updatedLoan.save();
-        return updatedLoan;
+        const loan = await this.loanRequirementModel.findById(loanRequirementId);
+        loan.financialInformation.operationalVintage = financialInfoPage1.operationalVintage;
+        loan.financialInformation.operationalVintageDurationType = financialInfoPage1.operationalVintageDurationType;
+        loan.financialInformation.annualTurnover = financialInfoPage1.annualTurnover;
+        loan.financialInformation.creditorAging = financialInfoPage1.creditorAging;
+        loan.financialInformation.debtorAging = financialInfoPage1.debtorAging;
+        loan.financialInformation.auditedFinancialFiles = financialInfoPage1.auditedFinancialFiles;
+        loan.financialInformation.provisionalFinancialFiles = financialInfoPage1.provisionalFinancialFiles;
+        loan.financialInformation.projectedFinancialFiles = financialInfoPage1.projectedFinancialFiles;
+        loan.loanStatus.financialInformation.page1 = "completed";
+        await loan.save();
+        return loan;
     }
 
     async updateFinancialInfoPage2(loanRequirementId: string, financialInfoPage2: FinancialInfoPage2Dto) {
-        const updatedLoan = await this.loanRequirementModel.findById(loanRequirementId);
-        updatedLoan.financialInformation.itrFiles = financialInfoPage2.itrFiles;
-        updatedLoan.financialInformation.gst3bFiles = financialInfoPage2.gst3bFiles;
-        updatedLoan.financialInformation.salesRegisterFiles = financialInfoPage2.salesRegisterFiles;
-        updatedLoan.financialInformation.bankStatementFiles = financialInfoPage2.bankStatementFiles;
-        updatedLoan.financialInformation.productRevenueFiles = financialInfoPage2.productRevenueFiles;
-        updatedLoan.financialInformation.stockStatementFiles = financialInfoPage2.stockStatementFiles;
-        updatedLoan.loanStatus.financialInformation.page2 = "completed";
-        await updatedLoan.save();
-        return updatedLoan;
+        return new Promise( async (resolve, rejects) => {
+            const loan = await this.loanRequirementModel.findById(loanRequirementId);
+            if(loan && loan.loanStatus.financialInformation.page1 === "completed")
+            {
+                loan.financialInformation.itrFiles = financialInfoPage2.itrFiles;
+                loan.financialInformation.gst3bFiles = financialInfoPage2.gst3bFiles;
+                loan.financialInformation.salesRegisterFiles = financialInfoPage2.salesRegisterFiles;
+                loan.financialInformation.bankStatementFiles = financialInfoPage2.bankStatementFiles;
+                loan.financialInformation.productRevenueFiles = financialInfoPage2.productRevenueFiles;
+                loan.financialInformation.stockStatementFiles = financialInfoPage2.stockStatementFiles;
+                loan.loanStatus.financialInformation.page2 = "completed";
+                await loan.save();
+                resolve(loan);
+            }
+            else rejects("FinancialInfoPage1 not updated");
+        });
     }
 
     async updateCreditFacility(loanRequirementId: string, creditFacility: CreditFacilityDto) {
-        const updatedLoan = await this.loanRequirementModel.findByIdAndUpdate(loanRequirementId, {creditFacility: creditFacility}, {new: true});
-        updatedLoan.loanStatus.creditFacility = "completed";
-        await updatedLoan.save();
-        return updatedLoan;
+        return new Promise( async (resolve, rejects) => {
+            const loan = await this.loanRequirementModel.findById(loanRequirementId);
+            if(loan && loan.loanStatus.financialInformation.page2 === "completed")
+            {
+                loan.creditFacility = creditFacility;
+                loan.loanStatus.creditFacility = "completed";
+                await loan.save();
+                resolve(loan);
+            }
+            else rejects("FinancialInfoPage2 not updated");
+        });
     }
 
     async updateLoanDetails(loanRequirementId: string, loanDetail: LoanDetailDto) {
-        const updatedLoan = await this.loanRequirementModel.findByIdAndUpdate(loanRequirementId, {loanDetail: loanDetail}, {new: true});
-        updatedLoan.loanStatus.loanDetail = "completed";
-        await updatedLoan.save();
-        return updatedLoan;
+        return new Promise( async (resolve, rejects) => {
+            const loan = await this.loanRequirementModel.findById(loanRequirementId);
+            if(loan && loan.loanStatus.creditFacility === "completed")
+            {
+                loan.loanDetail = loanDetail;
+                loan.loanStatus.loanDetail = "completed";
+                await loan.save();
+                resolve(loan);
+            }
+            else rejects("CreditFacility not updated");
+        });
     }
 }

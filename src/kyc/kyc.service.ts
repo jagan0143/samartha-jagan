@@ -15,14 +15,16 @@ export class KycService {
 
     async createNewKyc(agriEnterprise: AgriEnterpriseDocument, directorDetails: [DirectorDetailsDto]): Promise<KycVerificationDocument> {
         return new Promise( async (resolve, rejects) => {
-            try{
                 const kycData = {
                     aeId: agriEnterprise.id,
                     userId: agriEnterprise.userId,
                     type: agriEnterprise.type,
                     directorDetails: directorDetails,
                     companyEntity: null,
-                    buyerSellerDetails: null,
+                    buyerSellerDetails: {
+                        buyerDetails: [null],
+                        sellerDetails: [null]
+                    },
                     kycStatus: {
                         directorDetailsStatus: "completed",
                         companyEntityStatus: "pending",
@@ -30,10 +32,8 @@ export class KycService {
                     }
                 }
                 const newKyc = await new this.KycVerificationModel(kycData).save();
-                resolve(newKyc);
-            }catch(err){
-                rejects(err);
-            }
+                if(newKyc) resolve(newKyc);
+                else rejects('Kyc not created properly!');
         })
     }
 
@@ -45,16 +45,31 @@ export class KycService {
     }
 
     async updateCompanyEntity(kycId: string, companyEntity: CompanyEntityDto) {
-        const kyc = await this.KycVerificationModel.findByIdAndUpdate(kycId, {companyEntity: companyEntity}, {new: true});
-        kyc.kycStatus.companyEntityStatus = "completed";
-        await kyc.save();
-        return kyc;
+        return new Promise( async (resolve, rejects) => {
+            const kyc = await this.KycVerificationModel.findById(kycId);
+            if(kyc && kyc.kycStatus.directorDetailsStatus == "completed")
+            {
+                kyc.companyEntity = companyEntity;
+                kyc.kycStatus.companyEntityStatus = "completed";
+                await kyc.save();
+                resolve(kyc);
+            }
+            else rejects('DirectorDetails not updated')
+        });
     }
 
     async updateBuyerSellerDetails(kycId: string, buyers: [BuyersDto], sellers: [SellersDto]) {
-        const kyc = await this.KycVerificationModel.findByIdAndUpdate(kycId, {buyerSellerDetails:{buyerDetails: buyers, sellerDetails: sellers}}, {new: true});
-        kyc.kycStatus.buyerSellerDetailsStatus = "completed";
-        await kyc.save();
-        return kyc;
+        return new Promise( async (resolve, rejects) => {
+            const kyc = await this.KycVerificationModel.findById(kycId);
+            if(kyc && kyc.kycStatus.companyEntityStatus == "completed")
+            {
+                kyc.buyerSellerDetails.buyerDetails = buyers;
+                kyc.buyerSellerDetails.sellerDetails = sellers;
+                kyc.kycStatus.buyerSellerDetailsStatus = "completed";
+                await kyc.save();
+                resolve(kyc);
+            }
+            else rejects('CompanyEntity not updated')
+        });
     }
 }

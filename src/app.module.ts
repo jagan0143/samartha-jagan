@@ -41,7 +41,7 @@ export class AppModule implements NestModule {
       .forRoutes(
         ...[
           'profile-details',
-          'loan-requirement', 
+          'loan-details', 
           'kyc',
           'agri-enterprise',
           'kyc-verification'

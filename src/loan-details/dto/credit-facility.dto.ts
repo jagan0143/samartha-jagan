@@ -1,8 +1,10 @@
 export class CreditFacilityDto {
     creditFacility: string;
     currentBorrowingDetail: [string];
-    documents: {
-        documentName: {type: String},
-        documentFiles: {type: [String]}
-    }
+    documents: Document;
+}
+
+class Document {
+    documentName: string;
+    documentFiles: [string];
 }

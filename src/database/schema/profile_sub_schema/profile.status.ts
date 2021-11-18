@@ -10,7 +10,7 @@ export class ProfileStatus {
     companyDetailsStatus: Record<string, any>;
 
     @Prop({type: String, default: "pending"})
-    LicenseDetailsStatus: string;
+    licenseDetailsStatus: string;
 
     @Prop({type: String, default: "pending"})
     firmAddressDetailsStatus: string;
