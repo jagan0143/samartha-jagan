@@ -30,7 +30,7 @@ export class ProfileDetailsController {
         } catch (err) {
             return {
                 status: 400,
-                message: "Error occured",
+                message: "failed",
                 error: err
             }
         }
@@ -39,7 +39,7 @@ export class ProfileDetailsController {
     @Patch("page1")
     async updatePage1(@Request() req: any, @Body('companyDeatilspage1') companydetailsPage1: CompanyDetailsPage1Dto, @Query('applicationId') applicationId: string) {
         try {
-            const application = await this.agriEnterpriseService.getApplication(req.user.mobile, applicationId);
+            const application = await this.agriEnterpriseService.isApplicationDraft(req.user.mobile, applicationId);
             const updatedProfile = await this.profileDetailsService.updateCompanyDetailsPage1(application.profileDetailsId, companydetailsPage1);
             return  {
                 status: 200,
@@ -50,7 +50,7 @@ export class ProfileDetailsController {
         } catch (err) {
             return {
                 status: 400,
-                message: "Error occured",
+                message: "failed",
                 error: err
             };
         }
@@ -59,7 +59,7 @@ export class ProfileDetailsController {
     @Patch("page2")
     async updatePage2(@Request() req: any, @Body('companyDeatilspage2') companydetailsPage2: CompanyDetailsPage2Dto, @Query('applicationId') applicationId: string) {
         try {
-            const application = await this.agriEnterpriseService.getApplication(req.user.mobile, applicationId);
+            const application = await this.agriEnterpriseService.isApplicationDraft(req.user.mobile, applicationId);
             const updatedProfile = await this.profileDetailsService.updateCompanyDetailsPage2(application.profileDetailsId, companydetailsPage2);
             return {
                 status: 200,
@@ -70,7 +70,7 @@ export class ProfileDetailsController {
         } catch (err) {
             return {
                 status: 400,
-                message: "Error occured",
+                message: "failed",
                 error: err
             };
         }
@@ -79,7 +79,7 @@ export class ProfileDetailsController {
     @Patch("page3")
     async updatePage3(@Request() req: any, @Body('companyDeatilspage3') companydetailsPage3: CompanyDetailsPage3Dto, @Query('applicationId') applicationId: string) {
         try {
-            const application = await this.agriEnterpriseService.getApplication(req.user.mobile, applicationId);
+            const application = await this.agriEnterpriseService.isApplicationDraft(req.user.mobile, applicationId);
             const updatedProfile = await this.profileDetailsService.updateCompanyDetailsPage3(application.profileDetailsId, companydetailsPage3);
             return {
                 status: 200,
@@ -90,7 +90,7 @@ export class ProfileDetailsController {
         } catch (err) {
             return {
                 status: 400,
-                message: "Error occured",
+                message: "failed",
                 error: err
             };
         }
@@ -99,7 +99,7 @@ export class ProfileDetailsController {
     @Patch("license")
     async updateLicense(@Request() req: any, @Body('license') license: [LicenceDto], @Query('applicationId') applicationId: string) {
         try {
-            const application = await this.agriEnterpriseService.getApplication(req.user.mobile, applicationId);
+            const application = await this.agriEnterpriseService.isApplicationDraft(req.user.mobile, applicationId);
             const updatedProfile = await this.profileDetailsService.updateLicense(application.profileDetailsId, license);
             return {
                 status: 200,
@@ -110,7 +110,7 @@ export class ProfileDetailsController {
         } catch (err) {
             return {
                 status: 400,
-                message: "Error occured",
+                message: "failed",
                 error: err
             };
         }
@@ -119,7 +119,7 @@ export class ProfileDetailsController {
     @Patch("firmAddressDetails")
     async updatefirmAddressDetails(@Request() req: any, @Body('firmAddressDetails') firmAddressDetails: FirmAddressDetailsDto, @Query('applicationId') applicationId: string) {
         try {
-            const application = await this.agriEnterpriseService.getApplication(req.user.mobile, applicationId);
+            const application = await this.agriEnterpriseService.isApplicationDraft(req.user.mobile, applicationId);
             const updatedProfile = await this.profileDetailsService.updateFirmAddressDetails(application.profileDetailsId, firmAddressDetails);
             const updatedapplication = await this.agriEnterpriseService.updateApplicationStatus(req.user.mobile, applicationId, "profile", "completed")
             return {
@@ -131,7 +131,7 @@ export class ProfileDetailsController {
         } catch (err) {
             return {
                 status: 400,
-                message: "Error occured",
+                message: "failed",
                 error: err
             };
         }

@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { application } from 'express';
 import { Model, Types } from 'mongoose';
 import { AgriEnterprise, AgriEnterpriseDocument, Application } from 'src/database/schema/agri-enterprise.schema';
 import { LoanRequirementDocument } from 'src/database/schema/loan-requirement.schema';
@@ -47,7 +48,8 @@ export class AgriEnterpriseService {
             applicationStatus: {
                 profileStatus: "pending",
                 kycStatus: null,
-                loanStatus: null
+                loanStatus: null,
+                status: "draft"
             }
         }
         const agriEnterpriseDoc = await this.AgriEnterpriseModel.findById(agriEnterpriseId);
@@ -66,12 +68,12 @@ export class AgriEnterpriseService {
 
     async getApplication(mobile: string, applicationId: string): Promise<Application> {
         return new Promise(async (resolve, rejects) => {
-            try{
+            try {
                 const agriEnterpriseDoc = await this.getAgriEnterpriseByMobile(mobile);
                 const application = agriEnterpriseDoc.applications.find((element: any) => { return element._id == applicationId });
                 if (application) resolve(application);
                 else rejects('Application not found');
-            }catch(err){
+            } catch (err) {
                 rejects(err);
             }
         });
@@ -95,16 +97,53 @@ export class AgriEnterpriseService {
         return agriEnterPrise.applications[applicationIndex];
     }
 
-    async updateApplicationStatus(mobile: string, applicationId: string, update: string, status: string){
+    async updateApplicationStatus(mobile: string, applicationId: string, update: string, status: string) {
         const agriEnterPrise = await this.getAgriEnterpriseByMobile(mobile);
         const applicationIndex = agriEnterPrise.applications.findIndex((element: any) => { return element._id == applicationId });
-        if(update === "profile")
-        agriEnterPrise.applications[applicationIndex].applicationStatus.profileStatus = status;
-        if(update === "kyc")
-        agriEnterPrise.applications[applicationIndex].applicationStatus.kycStatus = status;
-        if(update === "loan")
-        agriEnterPrise.applications[applicationIndex].applicationStatus.loanStatus = status;
+        if (update === "profile")
+            agriEnterPrise.applications[applicationIndex].applicationStatus.profileStatus = status;
+        if (update === "kyc")
+            agriEnterPrise.applications[applicationIndex].applicationStatus.kycStatus = status;
+        if (update === "loan")
+            agriEnterPrise.applications[applicationIndex].applicationStatus.loanStatus = status;
         await agriEnterPrise.save();
         return agriEnterPrise.applications[applicationIndex];
+    }
+
+    async isApplicationDraft(mobile: string, applicationId: string): Promise<Application> {
+        return new Promise(async (resolve, rejects) => {
+            try {
+                const application = await this.getApplication(mobile, applicationId);
+                if (application.applicationStatus.status === "draft") return application;
+                // else throw new BadRequestException('Submitted application cant update');
+                else rejects("Submitted application can't update");
+            }
+            catch (err) {
+                rejects(err);
+            }
+        });
+    }
+
+    async finalizeApplication(mobile: string, applicationId: string) {
+        return new Promise(async (resolve, rejects) => {
+            try {
+                const application = await this.getApplication(mobile, applicationId);
+                if (
+                    application.applicationStatus.profileStatus === "completed" &&
+                    application.applicationStatus.kycStatus === "completed" &&
+                    application.applicationStatus.loanStatus === "completed"
+                ) {
+                    const agriEnterPrise = await this.getAgriEnterpriseByMobile(mobile);
+                    const applicationIndex = agriEnterPrise.applications.findIndex((element: any) => { return element._id == applicationId });
+                    agriEnterPrise.applications[applicationIndex].applicationStatus.status = "submitted";
+                    await agriEnterPrise.save();
+                    resolve(agriEnterPrise.applications[applicationIndex]);
+                }
+                else rejects("Application not completed properly");
+            }
+            catch (err) {
+                rejects(err);
+            }
+        });
     }
 }

@@ -16,7 +16,7 @@ export class KycController {
     @Patch('directorDetails')
     async updateDirectorDetails(@Request() req: any, @Body('directorDetails') directorDetails: [DirectorDetailsDto], @Query('applicationId') applicationId: string) {
         try {
-            const application = await this.agriEnterpriseService.getApplication(req.user.mobile, applicationId);
+            const application = await this.agriEnterpriseService.isApplicationDraft(req.user.mobile, applicationId);
             if(application.applicationStatus.profileStatus === "completed")
             {
                 if (!(application.kycId === null)) {
@@ -59,7 +59,7 @@ export class KycController {
     @Patch('companyEntity')
     async updateCompanyEntity(@Request() req: any, @Body('companyEntity') companyEntity: CompanyEntityDto, @Query('applicationId') applicationId: string) {
         try {
-            const application = await this.agriEnterpriseService.getApplication(req.user.mobile, applicationId);
+            const application = await this.agriEnterpriseService.isApplicationDraft(req.user.mobile, applicationId);
             const updatedKyc = await this.kycService.updateCompanyEntity(application.kycId, companyEntity);
             return {
                 status: 200,
@@ -79,7 +79,7 @@ export class KycController {
     @Patch('buyerSellerDetails')
     async updateBuyerSellerDetails(@Request() req: any, @Body('buyers') buyers: [BuyersDto], @Body('sellers') sellers: [SellersDto], @Query('applicationId') applicationId: string) {
         try {
-            const application = await this.agriEnterpriseService.getApplication(req.user.mobile, applicationId);
+            const application = await this.agriEnterpriseService.isApplicationDraft(req.user.mobile, applicationId);
             const updatedKyc = await this.kycService.updateBuyerSellerDetails(application.kycId, buyers, sellers);
             const updatedapplication = await this.agriEnterpriseService.updateApplicationStatus(req.user.mobile, applicationId, "kyc", "completed");
             return {

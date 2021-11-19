@@ -15,7 +15,7 @@ export class LoanDetailsController {
     @Patch('financialInfoPage1')
     async updateFinancialInfoPage1(@Request() req: any, @Body('financialInfoPage1') financialInfoPage1: FinancialInfoPage1Dto, @Query('applicationId') applicationId: string) {
         try {
-            const application = await this.agriEnterpriseService.getApplication(req.user.mobile, applicationId);
+            const application = await this.agriEnterpriseService.isApplicationDraft(req.user.mobile, applicationId);
             if(application.applicationStatus.kycStatus === "completed"){
                 if (!(application.loanRequirementId === null)) {
                     const updatedLoan = await this.loanDetailsService.updateFinancialInfoPage1(application.loanRequirementId, financialInfoPage1);
@@ -41,14 +41,14 @@ export class LoanDetailsController {
             else{
                 return {
                     status: 400,
-                    message: "Error occured",
+                    message: "failed",
                     error: "Kyc not updated"
                 }
             }
         } catch (err) {
             return {
                 status: 400,
-                message: "Error occured",
+                message: "failed",
                 error: err
             }
         }
@@ -57,7 +57,7 @@ export class LoanDetailsController {
     @Patch('financialInfoPage2')
     async updateFinancialInfoPage2(@Request() req: any, @Body('financialInfoPage2') financialInfoPage2: FinancialInfoPage2Dto, @Query('applicationId') applicationId: string) {
         try {
-            const application = await this.agriEnterpriseService.getApplication(req.user.mobile, applicationId);
+            const application = await this.agriEnterpriseService.isApplicationDraft(req.user.mobile, applicationId);
             const updatedLoan = await this.loanDetailsService.updateFinancialInfoPage2(application.loanRequirementId, financialInfoPage2);
             return {
                 status: 200,
@@ -68,7 +68,7 @@ export class LoanDetailsController {
         } catch (err) {
             return {
                 status: 400,
-                message: "Error occured",
+                message: "failed",
                 error: err
             }
         }
@@ -77,7 +77,7 @@ export class LoanDetailsController {
     @Patch('creditFacility')
     async updateCreditFacility(@Request() req: any, @Body('creditFacility') creditFacility: CreditFacilityDto, @Query('applicationId') applicationId: string) {
         try {
-            const application = await this.agriEnterpriseService.getApplication(req.user.mobile, applicationId);
+            const application = await this.agriEnterpriseService.isApplicationDraft(req.user.mobile, applicationId);
             const updatedLoan = await this.loanDetailsService.updateCreditFacility(application.loanRequirementId, creditFacility);
             return {
                 status: 200,
@@ -88,7 +88,7 @@ export class LoanDetailsController {
         } catch (err) {
             return {
                 status: 400,
-                message: "Error occured",
+                message: "failed",
                 error: err
             }
         }
@@ -97,7 +97,7 @@ export class LoanDetailsController {
     @Patch('loanDetail')
     async updateLoanDetail(@Request() req: any, @Body('loanDetail') loanDetail: LoanDetailDto, @Query('applicationId') applicationId: string) {
         try {
-            const application = await this.agriEnterpriseService.getApplication(req.user.mobile, applicationId);
+            const application = await this.agriEnterpriseService.isApplicationDraft(req.user.mobile, applicationId);
             const updatedLoan = await this.loanDetailsService.updateLoanDetails(application.loanRequirementId, loanDetail);
             const updatedapplication = await this.agriEnterpriseService.updateApplicationStatus(req.user.mobile, applicationId, "loan", "completed");
             return {
@@ -109,7 +109,7 @@ export class LoanDetailsController {
         } catch (err) {
             return {
                 status: 400,
-                message: "Error occured",
+                message: "failed",
                 error: err
             }
         }

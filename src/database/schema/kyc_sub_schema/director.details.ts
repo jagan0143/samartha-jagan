@@ -38,6 +38,10 @@ export class DirectorDetails {
         type: String
     })
     shareHoldingUrl: string
+    @Prop({
+        type: String
+    })
+    kycVerification: string
 }
 
 export const DirectorDetailsSchema = SchemaFactory.createForClass(DirectorDetails);

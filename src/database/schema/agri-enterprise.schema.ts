@@ -21,7 +21,8 @@ export class Application {
     @Prop(raw({
         profileStatus: { type: String},
         kycStatus: { type: String},
-        loanStatus: { type: String}
+        loanStatus: { type: String},
+        status: {type: String, default: "draft"}
     }))
     applicationStatus: Record<string, any>;
 
